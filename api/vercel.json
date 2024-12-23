@@ -1,0 +1,14 @@
+{
+  "builds": [
+    {
+      "src": "api/get_audio_url.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/get_audio_url",
+      "dest": "api/get_audio_url.py"
+    }
+  ]
+}

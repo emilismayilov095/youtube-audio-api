@@ -1,4 +1,4 @@
-from pytube import YouTube
+import yt_dlp
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
@@ -10,8 +10,13 @@ def get_audio_url():
         return jsonify({'error': 'URL видео не предоставлен'}), 400
 
     try:
-        yt = YouTube(video_url)
-        audio_stream = yt.streams.filter(only_audio=True).first()
-        return jsonify({'audio_url': audio_stream.url})
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'noplaylist': True
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=False)
+            audio_url = info['url']
+            return jsonify({'audio_url': audio_url})
     except Exception as e:
         return jsonify({'error': str(e)}), 500

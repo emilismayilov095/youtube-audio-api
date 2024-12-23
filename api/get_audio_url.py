@@ -3,16 +3,24 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-@app.route('/api/get_audio_url', methods=['GET'])
+@app.route('/api/get_audio_url', methods=['POST'])
 def get_audio_url():
-    video_url = request.args.get('url')
-    if not video_url:
-        return jsonify({'error': 'URL видео не предоставлен'}), 400
+    data = request.json
+    cookies = data.get('cookies')
+    video_url = data.get('url')
+
+    if not cookies or not video_url:
+        return jsonify({'error': 'No cookies or URL provided'}), 400
 
     try:
+        # Сохраняем cookies во временный файл
+        with open('cookies.txt', 'w') as f:
+            f.write(cookies)
+
         ydl_opts = {
             'format': 'bestaudio/best',
-            'noplaylist': True
+            'noplaylist': True,
+            'cookiefile': 'cookies.txt'  # Используем файл cookies
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=False)
